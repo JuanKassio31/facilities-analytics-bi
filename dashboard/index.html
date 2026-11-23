@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facilities &amp; Outsourcing BI — Painel Executivo de Margem, Absenteísmo e SLA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="data.js"></script>
+  <style>
+    :root {
+      --navy: #0f2744;
+      --navy-soft: #1e3a5f;
+      --teal: #0d9488;
+      --teal-soft: #ccfbf1;
+      --amber: #d97706;
+      --amber-soft: #fef3c7;
+      --crimson: #dc2626;
+      --crimson-soft: #fee2e2;
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #475569;
+      --subtle: #64748b;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 14px rgba(15, 23, 42, 0.04);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Power BI-style header bar */
+    .topbar {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+      color: #ffffff;
+      padding: 18px 28px;
+      border-bottom: 3px solid var(--teal);
+      box-shadow: 0 4px 16px rgba(15, 39, 68, 0.18);
+    }
+
+    .topbar-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #5eead4;
+      margin-bottom: 4px;
+    }
+
+    .brand-tag .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #2dd4bf;
+      display: inline-block;
+    }
+
+    .topbar h1 {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-sub {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+
+    .disclaimer-pill {
+      background: rgba(255, 255, 255, 0.11);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #f8fafc;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      max-width: 380px;
+    }
+
+    .disclaimer-pill strong {
+      color: #fde68a;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+    }
+
+    /* Filter Slicer Bar */
+    .slicer-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr)) auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .slicer-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--subtle);
+      margin-bottom: 5px;
+    }
+
+    .slicer-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background-color: #f8fafc;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .slicer-group select:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    }
+
+    .btn-reset {
+      padding: 9px 16px;
+      background: var(--navy);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn-reset:hover {
+      background: var(--navy-soft);
+    }
+
+    .btn-reset:active {
+      transform: scale(0.98);
+    }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px 16px;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--navy);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-card.teal { border-top-color: var(--teal); }
+    .kpi-card.amber { border-top-color: var(--amber); }
+    .kpi-card.crimson { border-top-color: var(--crimson); }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--subtle);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pill-crit { background: var(--crimson-soft); color: #991b1b; }
+    .pill-warn { background: var(--amber-soft); color: #92400e; }
+    .pill-ok   { background: #dcfce7; color: #166534; }
+    .pill-info { background: #e0f2fe; color: #075985; }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--subtle);
+      margin-top: 2px;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 295px;
+      width: 100%;
+    }
+
+    .chart-box-tall {
+      position: relative;
+      height: 315px;
+      width: 100%;
+    }
+
+    /* Storytelling Panel */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .story-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--teal);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .recovery-card {
+      background: linear-gradient(135deg, var(--navy) 0%, #17365d 100%);
+      color: #ffffff;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .story-list {
+      list-style: none;
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .story-list li {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #1e293b;
+    }
+
+    .story-list li strong {
+      color: var(--navy);
+    }
+
+    .recovery-val {
+      font-size: 30px;
+      font-weight: 800;
+      color: #5eead4;
+      margin: 8px 0 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .recovery-sub {
+      font-size: 12.5px;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    .action-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .action-tag {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 11.5px;
+      color: #f1f5f9;
+    }
+
+    /* Table Controls & Data Table */
+    .table-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .status-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #ffffff;
+    }
+
+    .search-input {
+      padding: 7px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      min-width: 240px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      min-width: 980px;
+    }
+
+    thead th {
+      background: #f8fafc;
+      color: var(--navy);
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 10px;
+      border-bottom: 2px solid #cbd5e1;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    thead th:hover {
+      background: #eef2f6;
+    }
+
+    thead th.num, tbody td.num {
+      text-align: right;
+    }
+
+    tbody td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .neg-val {
+      color: var(--crimson);
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--subtle);
+    }
+
+    @media (max-width: 1180px) {
+      .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .span-7, .span-5, .span-6 { grid-column: span 12; }
+      .story-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .slicer-bar { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 14px 16px; }
+      .container { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="brand-tag">
+          <span class="dot"></span>
+          <span>Case de Dados &amp; Negócios • Facilities &amp; Terceirização</span>
+        </div>
+        <h1>Painel Executivo de Margem Operacional, Absenteísmo e SLA</h1>
+        <p class="topbar-sub">
+          Análise de 24 contratos no Nordeste (Teresina-PI e região) • Diagnóstico de causa raiz e potencial de recuperação financeira
+        </p>
+      </div>
+      <div class="disclaimer-pill">
+        <strong>Nota de transparência:</strong> Base 100% sintética (Jan–Dez 2025), desenvolvida para portfólio profissional em Dados, Excel e Power BI.
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Filtros (Segmentadores estilo Power BI) -->
+    <section class="slicer-bar" aria-label="Filtros do painel">
+      <div class="slicer-group">
+        <label for="fltLinha">Linha de Serviço</label>
+        <select id="fltLinha">
+          <option value="ALL">Todas as linhas (4)</option>
+        </select>
+      </div>
+      <div class="slicer-group">
+        <label for="fltCidade">Cidade / UF</label>
+        <select id="fltCidade">
+          <option value="ALL">Todas as praças (6)</option>
+        </select>
+      </div>
+      <div class="slicer-group">
+        <label for="fltSegmento">Segmento do Cliente</label>
+        <select id="fltSegmento">
+          <option value="ALL">Todos os segmentos (6)</option>
+        </select>
+      </div>
+      <div class="slicer-group">
+        <label for="fltPeriodo">Período (2025)</label>
+        <select id="fltPeriodo">
+          <option value="ALL">Ano Completo (Jan–Dez)</option>
+          <option value="S1">1º Semestre (Jan–Jun)</option>
+          <option value="S2">2º Semestre (Jul–Dez)</option>
+          <option value="T1">1º Trimestre (Jan–Mar)</option>
+          <option value="T2">2º Trimestre (Abr–Jun)</option>
+          <option value="T3">3º Trimestre (Jul–Set)</option>
+          <option value="T4">4º Trimestre (Out–Dez)</option>
+        </select>
+      </div>
+      <button id="btnReset" class="btn-reset" type="button">Limpar Filtros</button>
+    </section>
+
+    <!-- 5 Cartões KPI -->
+    <section class="kpi-grid" aria-label="Indicadores principais">
+      <article class="kpi-card">
+        <div class="kpi-label">Receita Líquida</div>
+        <div class="kpi-value" id="kpiReceitaLiq">--</div>
+        <div class="kpi-sub">
+          <span id="kpiReceitaBruta">Bruta: --</span>
+          <span class="pill pill-info" id="kpiContratos">24 contratos</span>
+        </div>
+      </article>
+
+      <article class="kpi-card teal">
+        <div class="kpi-label">Margem Operacional</div>
+        <div class="kpi-value" id="kpiMargemVal">--</div>
+        <div class="kpi-sub">
+          <span>Margem %: <strong id="kpiMargemPct">--</strong></span>
+          <span class="pill" id="kpiMargemBadge">Meta: ≥ 12%</span>
+        </div>
+      </article>
+
+      <article class="kpi-card amber">
+        <div class="kpi-label">Taxa de Absenteísmo</div>
+        <div class="kpi-value" id="kpiAbsPct">--</div>
+        <div class="kpi-sub">
+          <span id="kpiFaltas">-- faltas registradas</span>
+          <span class="pill" id="kpiAbsBadge">Benchmark ≤ 4%</span>
+        </div>
+      </article>
+
+      <article class="kpi-card crimson">
+        <div class="kpi-label">Custo Hora Extra / Cobertura</div>
+        <div class="kpi-value" id="kpiHeVal">--</div>
+        <div class="kpi-sub">
+          <span id="kpiHePct">-- da receita líquida</span>
+          <span class="pill pill-crit">Cobertura emergencial</span>
+        </div>
+      </article>
+
+      <article class="kpi-card crimson">
+        <div class="kpi-label">Glosas por SLA</div>
+        <div class="kpi-value" id="kpiGlosaVal">--</div>
+        <div class="kpi-sub">
+          <span>SLA Médio: <strong id="kpiSlaMed">--</strong></span>
+          <span class="pill" id="kpiCritBadge">-- críticos</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Storytelling e Potencial de Recuperação -->
+    <section class="story-grid">
+      <article class="story-card">
+        <div class="card-title">O "Porquê" por Trás dos Números (Diagnóstico da Seleção Atual)</div>
+        <div class="card-desc" id="storyHeadline">Resumo dinâmico baseado nos filtros aplicados acima</div>
+        <ul class="story-list" id="storyList"></ul>
+      </article>
+
+      <aside class="recovery-card">
+        <div>
+          <div class="brand-tag" style="margin-bottom: 2px;">
+            <span>Simulador de Impacto Financeiro</span>
+          </div>
+          <div style="font-size: 14px; font-weight: 600; color: #e2e8f0;">
+            Potencial de Recuperação de Margem nos Contratos Críticos
+          </div>
+          <div class="recovery-val" id="kpiRecoveryVal">--</div>
+          <p class="recovery-sub" id="kpiRecoveryDesc">
+            Estimativa considerando redução de 60% em horas extras emergenciais, eliminação de 80% das glosas de SLA e redução de 35% no custo de turnover nos contratos em zona crítica.
+          </p>
+        </div>
+        <div class="action-tags">
+          <span class="action-tag">1. Equipe volante (reserva técnica)</span>
+          <span class="action-tag">2. Revisão de escala 12x36 noturna</span>
+          <span class="action-tag">3. Alerta preventivo de absenteísmo &gt; 4,5%</span>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Gráficos Principais -->
+    <section class="charts-grid">
+      <article class="card span-7">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">1. Evolução Mensal: Receita Líquida vs. Margem Operacional (%)</h2>
+            <p class="card-desc">Acompanhamento mensal demonstrando o descolamento entre crescimento de receita e compressão de margem no 2º semestre</p>
+          </div>
+        </div>
+        <div class="chart-box" id="wrapChartMensal">
+          <canvas id="chartMensal"></canvas>
+        </div>
+      </article>
+
+      <article class="card span-5">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">2. Margem % e Absenteísmo % por Linha de Serviço</h2>
+            <p class="card-desc">Linhas intensivas em mão de obra contínua (Segurança e Limpeza) sofrem maior erosão</p>
+          </div>
+        </div>
+        <div class="chart-box" id="wrapChartLinha">
+          <canvas id="chartLinha"></canvas>
+        </div>
+      </article>
+
+      <article class="card span-7">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">3. Dispersão por Contrato: Absenteísmo (%) vs. Margem (%)</h2>
+            <p class="card-desc">Cada bolha representa um contrato (tamanho proporcional à receita líquida). Passe o mouse para detalhes.</p>
+          </div>
+        </div>
+        <div class="chart-box-tall" id="wrapChartScatter">
+          <canvas id="chartScatter"></canvas>
+        </div>
+      </article>
+
+      <article class="card span-5">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">4. Composição das Perdas de Margem (R$)</h2>
+            <p class="card-desc">Quanto cada ralo operacional consome da rentabilidade na visão filtrada</p>
+          </div>
+        </div>
+        <div class="chart-box-tall" id="wrapChartPerdas">
+          <canvas id="chartPerdas"></canvas>
+        </div>
+      </article>
+    </section>
+
+    <!-- Tabela de Ranking de Contratos -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">5. Diagnóstico Detalhado por Contrato</h2>
+          <p class="card-desc">Clique nos cabeçalhos das colunas para ordenar • Regra: Crítico (Margem &lt; 8% ou Abs &gt; 6%) | Atenção (Margem &lt; 12% ou Abs &gt; 4%)</p>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <div class="status-tabs" id="statusTabs">
+          <button class="tab-btn active" data-status="ALL" type="button">Todos (<span id="cntAll">24</span>)</button>
+          <button class="tab-btn" data-status="Crítico" type="button">Crítico (<span id="cntCrit">0</span>)</button>
+          <button class="tab-btn" data-status="Atenção" type="button">Atenção (<span id="cntWarn">0</span>)</button>
+          <button class="tab-btn" data-status="Saudável" type="button">Saudável (<span id="cntOk">0</span>)</button>
+        </div>
+        <input id="txtBusca" class="search-input" type="search" placeholder="Buscar contrato, cidade ou linha..." />
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="id_contrato">Código</th>
+              <th data-sort="nome_contrato">Contrato</th>
+              <th data-sort="linha_servico">Linha de Serviço</th>
+              <th data-sort="cidade_uf">Cidade / UF</th>
+              <th class="num" data-sort="headcount">HC</th>
+              <th class="num" data-sort="receita_liquida">Receita Líquida</th>
+              <th class="num" data-sort="margem_operacional">Margem (R$)</th>
+              <th class="num" data-sort="margem_pct">Margem %</th>
+              <th class="num" data-sort="absenteismo_pct">Absenteísmo %</th>
+              <th class="num" data-sort="sla_medio_pct">SLA Médio %</th>
+              <th class="num" data-sort="custo_hora_extra">Hora Extra</th>
+              <th class="num" data-sort="glosa_sla">Glosa SLA</th>
+              <th data-sort="status">Status</th>
+            </tr>
+          </thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      Projeto de Portfólio em Dados &amp; Negócios • Modelagem Estrela (CSV) + Excel (SUMIFS/IF) + Power BI (DAX) + Dashboard Web Interativo • Dados 100% simulados.
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      const DATA = window.FACILITIES_DATA;
+      if (!DATA) {
+        document.body.innerHTML = "<div style='padding:40px;font-family:sans-serif'>Erro: arquivo <code>data.js</code> não carregado.</div>";
+        return;
+      }
+
+      const calByYm = {};
+      DATA.calendario.forEach((c) => { calByYm[c.ano_mes] = c; });
+
+      // Estado dos filtros
+      const state = {
+        linha: "ALL",
+        cidade: "ALL",
+        segmento: "ALL",
+        periodo: "ALL",
+        statusTab: "ALL",
+        busca: "",
+        sortKey: "margem_pct",
+        sortAsc: true,
+      };
+
+      // Formatadores
+      const fmtBRL = (v) =>
+        new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
+      const fmtBRLShort = (v) => {
+        if (Math.abs(v) >= 1e6) return "R$ " + (v / 1e6).toFixed(2).replace(".", ",") + " M";
+        if (Math.abs(v) >= 1e3) return "R$ " + (v / 1e3).toFixed(1).replace(".", ",") + " mil";
+        return fmtBRL(v);
+      };
+      const fmtPct = (v) => (v * 100).toFixed(1).replace(".", ",") + "%";
+      const fmtInt = (v) => new Intl.NumberFormat("pt-BR").format(Math.round(v));
+
+      // Popular selects
+      function populateSelect(id, values) {
+        const el = document.getElementById(id);
+        values.forEach((v) => {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          el.appendChild(opt);
+        });
+      }
+
+      const linhasUnicas = [...new Set(DATA.contratos.map((c) => c.linha_servico))].sort();
+      const cidadesUnicas = [...new Set(DATA.contratos.map((c) => `${c.cidade} - ${c.uf}`))].sort();
+      const segsUnicos = [...new Set(DATA.contratos.map((c) => c.segmento))].sort();
+
+      populateSelect("fltLinha", linhasUnicas);
+      populateSelect("fltCidade", cidadesUnicas);
+      populateSelect("fltSegmento", segsUnicos);
+
+      // Chart instances
+      let chMensal = null;
+      let chLinha = null;
+      let chScatter = null;
+      let chPerdas = null;
+
+      function filtrarOperacoes() {
+        return DATA.operacoes.filter((r) => {
+          if (state.linha !== "ALL" && r.linha_servico !== state.linha) return false;
+          if (state.cidade !== "ALL" && `${r.cidade} - ${r.uf}` !== state.cidade) return false;
+          if (state.segmento !== "ALL" && r.segmento !== state.segmento) return false;
+          if (state.periodo !== "ALL") {
+            const cal = calByYm[r.ano_mes];
+            if (state.periodo === "S1" || state.periodo === "S2") {
+              if (cal.semestre !== state.periodo) return false;
+            } else if (cal.trimestre !== state.periodo) {
+              return false;
+            }
+          }
+          return true;
+        });
+      }
+
+      function agregarContratos(rows) {
+        const map = {};
+        rows.forEach((r) => {
+          if (!map[r.id_contrato]) {
+            map[r.id_contrato] = {
+              id_contrato: r.id_contrato,
+              nome_contrato: r.nome_contrato,
+              linha_servico: r.linha_servico,
+              cidade_uf: `${r.cidade} - ${r.uf}`,
+              segmento: r.segmento,
+              headcount: r.headcount_previsto,
+              receita_liquida: 0,
+              receita_bruta: 0,
+              margem_operacional: 0,
+              custo_hora_extra: 0,
+              glosa_sla: 0,
+              custo_rescisao: 0,
+              faltas: 0,
+              postos_dia: 0,
+              sla_soma: 0,
+              n_meses: 0,
+            };
+          }
+          const c = map[r.id_contrato];
+          c.receita_liquida += r.receita_liquida;
+          c.receita_bruta += r.receita_bruta;
+          c.margem_operacional += r.margem_operacional;
+          c.custo_hora_extra += r.custo_hora_extra_cobertura;
+          c.glosa_sla += r.glosa_sla;
+          c.custo_rescisao += r.custo_rescisao_admissao;
+          c.faltas += r.faltas_colaboradores;
+          c.postos_dia += r.headcount_previsto * r.dias_uteis;
+          c.sla_soma += r.sla_atingido_pct;
+          c.n_meses += 1;
+        });
+
+        return Object.values(map).map((c) => {
+          c.margem_pct = c.receita_liquida ? c.margem_operacional / c.receita_liquida : 0;
+          c.absenteismo_pct = c.postos_dia ? c.faltas / c.postos_dia : 0;
+          c.sla_medio_pct = c.n_meses ? c.sla_soma / c.n_meses : 0;
+          c.status =
+            c.margem_pct < 0.08 || c.absenteismo_pct > 0.06
+              ? "Crítico"
+              : c.margem_pct < 0.12 || c.absenteismo_pct > 0.04
+              ? "Atenção"
+              : "Saudável";
+          return c;
+        });
+      }
+
+      function render() {
+        const rows = filtrarOperacoes();
+        const contratosAgg = agregarContratos(rows);
+
+        const totRecBruta = rows.reduce((s, r) => s + r.receita_bruta, 0);
+        const totRecLiq = rows.reduce((s, r) => s + r.receita_liquida, 0);
+        const totMargem = rows.reduce((s, r) => s + r.margem_operacional, 0);
+        const totHe = rows.reduce((s, r) => s + r.custo_hora_extra_cobertura, 0);
+        const totGlosa = rows.reduce((s, r) => s + r.glosa_sla, 0);
+        const totResc = rows.reduce((s, r) => s + r.custo_rescisao_admissao, 0);
+        const totFaltas = rows.reduce((s, r) => s + r.faltas_colaboradores, 0);
+        const totPostos = rows.reduce((s, r) => s + r.headcount_previsto * r.dias_uteis, 0);
+        const slaMedio = rows.length ? rows.reduce((s, r) => s + r.sla_atingido_pct, 0) / rows.length : 0;
+
+        const margemPct = totRecLiq ? totMargem / totRecLiq : 0;
+        const absPct = totPostos ? totFaltas / totPostos : 0;
+        const criticos = contratosAgg.filter((c) => c.status === "Crítico");
+        const atencao = contratosAgg.filter((c) => c.status === "Atenção");
+        const saudaveis = contratosAgg.filter((c) => c.status === "Saudável");
+
+        // KPI Cards
+        document.getElementById("kpiReceitaLiq").textContent = fmtBRLShort(totRecLiq);
+        document.getElementById("kpiReceitaBruta").textContent = `Bruta: ${fmtBRLShort(totRecBruta)}`;
+        document.getElementById("kpiContratos").textContent = `${contratosAgg.length} contratos`;
+
+        document.getElementById("kpiMargemVal").textContent = fmtBRLShort(totMargem);
+        document.getElementById("kpiMargemPct").textContent = fmtPct(margemPct);
+        const mBadge = document.getElementById("kpiMargemBadge");
+        mBadge.textContent = margemPct >= 0.12 ? "Saudável (≥ 12%)" : margemPct >= 0.08 ? "Abaixo da meta" : "Crítica (< 8%)";
+        mBadge.className = "pill " + (margemPct >= 0.12 ? "pill-ok" : margemPct >= 0.08 ? "pill-warn" : "pill-crit");
+
+        document.getElementById("kpiAbsPct").textContent = fmtPct(absPct);
+        document.getElementById("kpiFaltas").textContent = `${fmtInt(totFaltas)} faltas no período`;
+        const aBadge = document.getElementById("kpiAbsBadge");
+        aBadge.textContent = absPct <= 0.04 ? "Dentro do benchmark" : "Acima de 4,0%";
+        aBadge.className = "pill " + (absPct <= 0.04 ? "pill-ok" : absPct <= 0.06 ? "pill-warn" : "pill-crit");
+
+        document.getElementById("kpiHeVal").textContent = fmtBRLShort(totHe);
+        document.getElementById("kpiHePct").textContent = `${fmtPct(totRecLiq ? totHe / totRecLiq : 0)} da receita líquida`;
+
+        document.getElementById("kpiGlosaVal").textContent = fmtBRLShort(totGlosa);
+        document.getElementById("kpiSlaMed").textContent = fmtPct(slaMedio);
+        const cBadge = document.getElementById("kpiCritBadge");
+        cBadge.textContent = `${criticos.length} críticos`;
+        cBadge.className = "pill " + (criticos.length > 0 ? "pill-crit" : "pill-ok");
+
+        // Potencial de Recuperação na seleção atual
+        const recHe = criticos.reduce((s, c) => s + c.custo_hora_extra, 0) * 0.60;
+        const recGl = criticos.reduce((s, c) => s + c.glosa_sla, 0) * 0.80;
+        const recTr = criticos.reduce((s, c) => s + c.custo_rescisao, 0) * 0.35;
+        const recTotal = recHe + recGl + recTr;
+        document.getElementById("kpiRecoveryVal").textContent = fmtBRL(recTotal);
+
+        // Storytelling dinâmico
+        const heCritShare = totHe ? criticos.reduce((s, c) => s + c.custo_hora_extra, 0) / totHe : 0;
+        const glCritShare = totGlosa ? criticos.reduce((s, c) => s + c.glosa_sla, 0) / totGlosa : 0;
+        const perdasTot = totHe + totGlosa + totResc;
+
+        const storyList = document.getElementById("storyList");
+        const piorLinha = [...linhasUnicas]
+          .map((l) => {
+            const sub = rows.filter((r) => r.linha_servico === l);
+            const rl = sub.reduce((s, r) => s + r.receita_liquida, 0);
+            const m = sub.reduce((s, r) => s + r.margem_operacional, 0);
+            return { linha: l, margem_pct: rl ? m / rl : null, rl };
+          })
+          .filter((x) => x.rl > 0)
+          .sort((a, b) => a.margem_pct - b.margem_pct)[0];
+
+        const items = [
+          `<strong>Efeito Cascata do Absenteísmo:</strong> Com taxa de <strong>${fmtPct(absPct)}</strong> (${fmtInt(totFaltas)} faltas), a cobertura emergencial consumiu <strong>${fmtBRL(totHe)}</strong> em horas extras e gerou <strong>${fmtBRL(totGlosa)}</strong> em glosas de SLA.`,
+          criticos.length > 0
+            ? `<strong>Concentração do Problema (Pareto):</strong> Apenas <strong>${criticos.length} contrato(s) crítico(s)</strong> (de ${contratosAgg.length}) respondem por <strong>${fmtPct(heCritShare)}</strong> de todo o custo com hora extra e <strong>${fmtPct(glCritShare)}</strong> das glosas contratuais.`
+            : `<strong>Carteira Saudável neste Recorte:</strong> Nenhum contrato em zona crítica nos filtros atuais — perdas operacionais somam ${fmtBRL(perdasTot)}.`,
+          piorLinha
+            ? `<strong>Linha Mais Pressionada:</strong> <em>${piorLinha.linha}</em> apresenta a menor margem operacional do recorte (<strong>${fmtPct(piorLinha.margem_pct)}</strong>), exigindo priorização na gestão de escalas e reserva técnica.`
+            : `<strong>Sem dados suficientes</strong> para classificar linhas de serviço neste recorte.`,
+        ];
+        storyList.innerHTML = items.map((t) => `<li>${t}</li>`).join("");
+
+        // Atualizar contadores da tabela e renderizar linhas
+        document.getElementById("cntAll").textContent = contratosAgg.length;
+        document.getElementById("cntCrit").textContent = criticos.length;
+        document.getElementById("cntWarn").textContent = atencao.length;
+        document.getElementById("cntOk").textContent = saudaveis.length;
+        renderTabela(contratosAgg);
+
+        // Renderizar gráficos
+        if (typeof window.Chart !== "undefined") {
+          renderCharts(rows, contratosAgg, totHe, totGlosa, totResc);
+        } else {
+          renderFallbackMsg();
+        }
+      }
+
+      function renderTabela(contratosAgg) {
+        const q = state.busca.trim().toLowerCase();
+        const filtered = contratosAgg.filter((c) => {
+          if (state.statusTab !== "ALL" && c.status !== state.statusTab) return false;
+          if (q) {
+            const hay = `${c.id_contrato} ${c.nome_contrato} ${c.linha_servico} ${c.cidade_uf} ${c.segmento}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+
+        filtered.sort((a, b) => {
+          const va = a[state.sortKey];
+          const vb = b[state.sortKey];
+          if (typeof va === "string") {
+            return state.sortAsc ? va.localeCompare(vb, "pt-BR") : vb.localeCompare(va, "pt-BR");
+          }
+          return state.sortAsc ? va - vb : vb - va;
+        });
+
+        const tbody = document.getElementById("tblBody");
+        if (!filtered.length) {
+          tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:24px;color:#64748b;">Nenhum contrato encontrado com os filtros atuais.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered
+          .map((c) => {
+            const pillCls = c.status === "Crítico" ? "pill-crit" : c.status === "Atenção" ? "pill-warn" : "pill-ok";
+            const mCls = c.margem_pct < 0.05 ? "neg-val" : "";
+            return `
+              <tr>
+                <td><strong>${c.id_contrato}</strong></td>
+                <td>${c.nome_contrato}</td>
+                <td>${c.linha_servico}</td>
+                <td>${c.cidade_uf}</td>
+                <td class="num">${c.headcount}</td>
+                <td class="num">${fmtBRL(c.receita_liquida)}</td>
+                <td class="num ${mCls}">${fmtBRL(c.margem_operacional)}</td>
+                <td class="num ${mCls}">${fmtPct(c.margem_pct)}</td>
+                <td class="num">${fmtPct(c.absenteismo_pct)}</td>
+                <td class="num">${fmtPct(c.sla_medio_pct)}</td>
+                <td class="num">${fmtBRL(c.custo_hora_extra)}</td>
+                <td class="num">${fmtBRL(c.glosa_sla)}</td>
+                <td><span class="pill ${pillCls}">${c.status}</span></td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      function renderCharts(rows, contratosAgg, totHe, totGlosa, totResc) {
+        // 1. Evolução Mensal
+        const meses = DATA.calendario.filter((cal) => {
+          if (state.periodo === "ALL") return true;
+          if (state.periodo === "S1" || state.periodo === "S2") return cal.semestre === state.periodo;
+          return cal.trimestre === state.periodo;
+        });
+
+        const mLabels = meses.map((m) => m.mes_abrev);
+        const mRec = [];
+        const mMargemPct = [];
+        meses.forEach((m) => {
+          const sub = rows.filter((r) => r.ano_mes === m.ano_mes);
+          const rl = sub.reduce((s, r) => s + r.receita_liquida, 0);
+          const mg = sub.reduce((s, r) => s + r.margem_operacional, 0);
+          mRec.push(Number((rl / 1e6).toFixed(3)));
+          mMargemPct.push(rl ? Number(((mg / rl) * 100).toFixed(2)) : 0);
+        });
+
+        if (chMensal) chMensal.destroy();
+        chMensal = new Chart(document.getElementById("chartMensal"), {
+          data: {
+            labels: mLabels,
+            datasets: [
+              {
+                type: "bar",
+                label: "Receita Líquida (R$ Milhões)",
+                data: mRec,
+                backgroundColor: "rgba(30, 58, 95, 0.85)",
+                borderRadius: 6,
+                yAxisID: "y",
+                order: 2,
+              },
+              {
+                type: "line",
+                label: "Margem Operacional (%)",
+                data: mMargemPct,
+                borderColor: "#dc2626",
+                backgroundColor: "#ffffff",
+                borderWidth: 2.8,
+                pointRadius: 4.5,
+                pointBorderWidth: 2.2,
+                tension: 0.25,
+                yAxisID: "y1",
+                order: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+              legend: { position: "top", labels: { usePointStyle: true, boxWidth: 10 } },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) =>
+                    ctx.datasetIndex === 0
+                      ? ` Receita Líquida: R$ ${ctx.parsed.y.toFixed(2).replace(".", ",")} M`
+                      : ` Margem %: ${ctx.parsed.y.toFixed(1).replace(".", ",")}%`,
+                },
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: { display: true, text: "Receita Líquida (R$ M)", color: "#1e3a5f", font: { weight: "600" } },
+                ticks: { callback: (v) => `R$ ${v.toFixed(1)}M` },
+              },
+              y1: {
+                position: "right",
+                beginAtZero: true,
+                suggestedMax: 22,
+                grid: { drawOnChartArea: false },
+                title: { display: true, text: "Margem %", color: "#dc2626", font: { weight: "600" } },
+                ticks: { callback: (v) => `${v}%` },
+              },
+            },
+          },
+        });
+
+        // 2. Margem % e Absenteísmo % por Linha de Serviço
+        const linhasAtivas = linhasUnicas.filter((l) => rows.some((r) => r.linha_servico === l));
+        const lMargem = [];
+        const lAbs = [];
+        linhasAtivas.forEach((l) => {
+          const sub = rows.filter((r) => r.linha_servico === l);
+          const rl = sub.reduce((s, r) => s + r.receita_liquida, 0);
+          const mg = sub.reduce((s, r) => s + r.margem_operacional, 0);
+          const fl = sub.reduce((s, r) => s + r.faltas_colaboradores, 0);
+          const pd = sub.reduce((s, r) => s + r.headcount_previsto * r.dias_uteis, 0);
+          lMargem.push(rl ? Number(((mg / rl) * 100).toFixed(1)) : 0);
+          lAbs.push(pd ? Number(((fl / pd) * 100).toFixed(1)) : 0);
+        });
+
+        if (chLinha) chLinha.destroy();
+        chLinha = new Chart(document.getElementById("chartLinha"), {
+          type: "bar",
+          data: {
+            labels: linhasAtivas,
+            datasets: [
+              {
+                label: "Margem Operacional (%)",
+                data: lMargem,
+                backgroundColor: "#0d9488",
+                borderRadius: 5,
+              },
+              {
+                label: "Absenteísmo (%)",
+                data: lAbs,
+                backgroundColor: "#d97706",
+                borderRadius: 5,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            plugins: {
+              legend: { position: "top", labels: { usePointStyle: true, boxWidth: 10 } },
+              tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.x}%` } },
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: { callback: (v) => `${v}%` },
+              },
+            },
+          },
+        });
+
+        // 3. Scatter Absenteísmo % vs Margem %
+        const groups = [
+          { status: "Saudável", color: "rgba(13, 148, 136, 0.85)", border: "#0f766e" },
+          { status: "Atenção", color: "rgba(217, 119, 6, 0.88)", border: "#b45309" },
+          { status: "Crítico", color: "rgba(220, 38, 38, 0.90)", border: "#991b1b" },
+        ];
+        const scatterSets = groups.map((g) => ({
+          label: g.status,
+          backgroundColor: g.color,
+          borderColor: g.border,
+          borderWidth: 1.5,
+          data: contratosAgg
+            .filter((c) => c.status === g.status)
+            .map((c) => ({
+              x: Number((c.absenteismo_pct * 100).toFixed(2)),
+              y: Number((c.margem_pct * 100).toFixed(2)),
+              r: Math.max(6, Math.min(18, Math.sqrt(c.receita_liquida / 1e5) * 2.2)),
+              meta: c,
+            })),
+        }));
+
+        if (chScatter) chScatter.destroy();
+        chScatter = new Chart(document.getElementById("chartScatter"), {
+          type: "bubble",
+          data: { datasets: scatterSets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "top", labels: { usePointStyle: true, boxWidth: 10 } },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => {
+                    const c = ctx.raw.meta;
+                    return [
+                      ` ${c.id_contrato} — ${c.nome_contrato}`,
+                      ` Margem: ${fmtPct(c.margem_pct)} (${fmtBRLShort(c.margem_operacional)})`,
+                      ` Absenteísmo: ${fmtPct(c.absenteismo_pct)} | SLA: ${fmtPct(c.sla_medio_pct)}`,
+                      ` Hora Extra: ${fmtBRLShort(c.custo_hora_extra)} | Glosa: ${fmtBRLShort(c.glosa_sla)}`,
+                    ];
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                title: { display: true, text: "Taxa de Absenteísmo (%)", font: { weight: "600" } },
+                ticks: { callback: (v) => `${v}%` },
+                suggestedMin: 1.5,
+              },
+              y: {
+                title: { display: true, text: "Margem Operacional (%)", font: { weight: "600" } },
+                ticks: { callback: (v) => `${v}%` },
+              },
+            },
+          },
+        });
+
+        // 4. Composição das Perdas de Margem
+        if (chPerdas) chPerdas.destroy();
+        chPerdas = new Chart(document.getElementById("chartPerdas"), {
+          type: "doughnut",
+          data: {
+            labels: ["Hora Extra Cobertura", "Glosas por SLA", "Rescisão e Admissão (Turnover)"],
+            datasets: [
+              {
+                data: [Math.round(totHe), Math.round(totGlosa), Math.round(totResc)],
+                backgroundColor: ["#dc2626", "#d97706", "#1e3a5f"],
+                borderWidth: 2,
+                borderColor: "#ffffff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "60%",
+            plugins: {
+              legend: { position: "bottom", labels: { padding: 14, usePointStyle: true } },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => {
+                    const total = totHe + totGlosa + totResc;
+                    const share = total ? ((ctx.raw / total) * 100).toFixed(1).replace(".", ",") : "0,0";
+                    return ` ${ctx.label}: ${fmtBRL(ctx.raw)} (${share}%)`;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function renderFallbackMsg() {
+        ["wrapChartMensal", "wrapChartLinha", "wrapChartScatter", "wrapChartPerdas"].forEach((id) => {
+          document.getElementById(id).innerHTML =
+            "<div style='padding:24px;border:1px dashed #cbd5e1;border-radius:8px;color:#475569;font-size:13px;'>Biblioteca de gráficos indisponível sem conexão de rede (CDN Chart.js). Todos os KPIs, diagnósticos e tabela acima continuam 100% interativos com os dados locais.</div>";
+        });
+      }
+
+      // Event Listeners
+      document.getElementById("fltLinha").addEventListener("change", (e) => { state.linha = e.target.value; render(); });
+      document.getElementById("fltCidade").addEventListener("change", (e) => { state.cidade = e.target.value; render(); });
+      document.getElementById("fltSegmento").addEventListener("change", (e) => { state.segmento = e.target.value; render(); });
+      document.getElementById("fltPeriodo").addEventListener("change", (e) => { state.periodo = e.target.value; render(); });
+      document.getElementById("txtBusca").addEventListener("input", (e) => { state.busca = e.target.value; render(); });
+
+      document.getElementById("btnReset").addEventListener("click", () => {
+        state.linha = "ALL";
+        state.cidade = "ALL";
+        state.segmento = "ALL";
+        state.periodo = "ALL";
+        state.statusTab = "ALL";
+        state.busca = "";
+        document.getElementById("fltLinha").value = "ALL";
+        document.getElementById("fltCidade").value = "ALL";
+        document.getElementById("fltSegmento").value = "ALL";
+        document.getElementById("fltPeriodo").value = "ALL";
+        document.getElementById("txtBusca").value = "";
+        document.querySelectorAll("#statusTabs .tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.status === "ALL"));
+        render();
+      });
+
+      document.querySelectorAll("#statusTabs .tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.statusTab = btn.dataset.status;
+          document.querySelectorAll("#statusTabs .tab-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          render();
+        });
+      });
+
+      document.querySelectorAll("thead th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.sort;
+          if (state.sortKey === key) {
+            state.sortAsc = !state.sortAsc;
+          } else {
+            state.sortKey = key;
+            state.sortAsc = key === "id_contrato" || key === "nome_contrato" || key === "margem_pct";
+          }
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

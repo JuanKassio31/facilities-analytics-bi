@@ -1,0 +1,25 @@
+﻿id_contrato,nome_contrato,segmento,linha_servico,cidade,uf,headcount_previsto,turno_predominante,sla_meta_pct,valor_mensal_base
+CTR-001,Hospital Regional Sul — Higienização,Hospitalar,Limpeza e Conservação,Teresina,PI,58,24h (12x36),0.9600,252300.00
+CTR-002,Shopping Poty Center — Segurança,Varejo & Shopping,Segurança Privada,Teresina,PI,44,Noturno / 12x36,0.9600,283800.00
+CTR-003,Centro Administrativo Estadual — Recepção,Órgão Público,Atendimento e Recepção,Teresina,PI,28,Comercial,0.9500,116200.00
+CTR-004,Campus Universitário Fátima — Limpeza,Educação,Limpeza e Conservação,Teresina,PI,40,Diurno / Vespertino,0.9500,164000.00
+CTR-005,Torre Empresarial Dom Severino — Manutenção,Corporativo,Manutenção Predial,Teresina,PI,16,Comercial,0.9500,115200.00
+CTR-006,Distrito Industrial Teresina — Vigilância,Indústria,Segurança Privada,Teresina,PI,36,Noturno / 12x36,0.9600,225000.00
+CTR-007,Clínica Integrada Centro — Atendimento,Hospitalar,Atendimento e Recepção,Teresina,PI,22,Comercial,0.9500,94600.00
+CTR-008,Tribunal Regional PI — Manutenção Predial,Órgão Público,Manutenção Predial,Teresina,PI,18,Comercial,0.9500,125100.00
+CTR-009,Rede Supermercado Norte — Limpeza,Varejo & Shopping,Limpeza e Conservação,Teresina,PI,30,Misto / Escala,0.9500,119400.00
+CTR-010,Polo Logístico Timon — Vigilância Patrimonial,Indústria,Segurança Privada,Timon,MA,32,24h (12x36),0.9600,196800.00
+CTR-011,Hospital Municipal Timon — Limpeza Técnica,Hospitalar,Limpeza e Conservação,Timon,MA,34,24h (12x36),0.9600,144500.00
+CTR-012,Faculdade Metropolitana Timon — Recepção,Educação,Atendimento e Recepção,Timon,MA,14,Diurno / Noturno,0.9500,55300.00
+CTR-013,Complexo Litoral Parnaíba — Manutenção,Corporativo,Manutenção Predial,Parnaíba,PI,12,Comercial,0.9500,82200.00
+CTR-014,Instituto Federal Delta — Limpeza,Educação,Limpeza e Conservação,Parnaíba,PI,24,Diurno,0.9500,94080.00
+CTR-015,Terminal Portuário Ilha — Segurança Armada,Indústria,Segurança Privada,São Luís,MA,46,24h (12x36),0.9600,310500.00
+CTR-016,Shopping Praia Maranhão — Limpeza,Varejo & Shopping,Limpeza e Conservação,São Luís,MA,38,Misto / Escala,0.9500,158840.00
+CTR-017,Sede Corporativa Renascença — Recepção,Corporativo,Atendimento e Recepção,São Luís,MA,16,Comercial,0.9500,71200.00
+CTR-018,Hospital São Marcos — Manutenção Predial,Hospitalar,Manutenção Predial,São Luís,MA,20,24h (Plantão),0.9600,149000.00
+CTR-019,Mall Aldeota — Limpeza & Conservação,Varejo & Shopping,Limpeza e Conservação,Fortaleza,CE,42,Misto / Escala,0.9500,183960.00
+CTR-020,Parque Tecnológico Ceará — Segurança,Corporativo,Segurança Privada,Fortaleza,CE,30,24h (12x36),0.9600,196500.00
+CTR-021,Secretaria Fazenda CE — Atendimento,Órgão Público,Atendimento e Recepção,Fortaleza,CE,24,Comercial,0.9500,104400.00
+CTR-022,Fábrica Suape Alimentos — Limpeza Industrial,Indústria,Limpeza e Conservação,Recife,PE,36,Turnos A/B,0.9500,159120.00
+CTR-023,Centro Empresarial Boa Viagem — Segurança,Corporativo,Segurança Privada,Recife,PE,28,24h (12x36),0.9600,186200.00
+CTR-024,Universidade Recife Campus — Manutenção,Educação,Manutenção Predial,Recife,PE,15,Comercial,0.9500,107250.00

@@ -1,0 +1,13 @@
+﻿data,ano,semestre,trimestre,mes_num,mes_nome,mes_abrev,ano_mes,dias_uteis
+2025-01-01,2025,S1,T1,1,Janeiro,Jan,2025-01,22
+2025-02-01,2025,S1,T1,2,Fevereiro,Fev,2025-02,20
+2025-03-01,2025,S1,T1,3,Março,Mar,2025-03,21
+2025-04-01,2025,S1,T2,4,Abril,Abr,2025-04,21
+2025-05-01,2025,S1,T2,5,Maio,Mai,2025-05,22
+2025-06-01,2025,S1,T2,6,Junho,Jun,2025-06,21
+2025-07-01,2025,S2,T3,7,Julho,Jul,2025-07,23
+2025-08-01,2025,S2,T3,8,Agosto,Ago,2025-08,21
+2025-09-01,2025,S2,T3,9,Setembro,Set,2025-09,22
+2025-10-01,2025,S2,T4,10,Outubro,Out,2025-10,23
+2025-11-01,2025,S2,T4,11,Novembro,Nov,2025-11,20
+2025-12-01,2025,S2,T4,12,Dezembro,Dez,2025-12,22
